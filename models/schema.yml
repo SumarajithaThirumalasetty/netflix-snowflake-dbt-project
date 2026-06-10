@@ -1,0 +1,91 @@
+version: 2
+
+models:
+
+  - name: dim_movies
+    description: Dimension table for cleansed movie metadata
+    columns:
+      - name: movie_id
+        description: Primary key of the movie
+        tests:
+          - not_null
+
+      - name: movie_title
+        description: Standardized movie title
+        tests:
+          - not_null
+
+      - name: genre_array
+        description: List of genres in array format
+
+      - name: genres
+        description: Raw genre string from sources
+
+
+  - name: dim_users
+    description: Dimension table of unique users from ratings and tags
+    columns:
+      - name: user_id
+        description: Unique user identifier
+        tests:
+          - not_null
+          # - unique
+
+
+  - name: dim_genome_tags
+    description: Dimension table of genome tags
+    columns:
+      - name: tag_id
+        description: Unique tag ID
+        tests:
+          - not_null
+          # - unique
+
+      - name: tag_name
+        description: Cleaned tag name
+        tests:
+          - not_null
+
+
+  - name: fact_ratings
+    description: Fact table of user ratings
+    columns:
+      - name: user_id
+        description: Foreign key to dim_users
+        tests:
+          - not_null
+
+      - name: movie_id
+        description: Foreign key to dim_movies
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_movies')
+              field: movie_id
+
+      - name: rating
+        description: User rating
+        tests:
+          - not_null
+
+      - name: rating_timestamp
+        description: Timestamp of rating
+
+
+  - name: fct_genome_scores
+    description: Fact table of genome relevance scores
+    columns:
+      - name: movie_id
+        description: Foreign key to dim_movies
+        tests:
+          - not_null
+
+      - name: tag_id
+        description: Foreign key to dim_genome_tags
+        tests:
+          - not_null
+
+      - name: relevance_score
+        description: Score between 0 and 1
+        tests:
+          - not_null
